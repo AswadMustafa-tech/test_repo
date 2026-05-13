@@ -27,6 +27,21 @@ jobs:
 
       - name: Merge dev into main
         run: |
+          git fetch origin
           git checkout main
           git merge origin/dev --no-ff -m "Auto-merge dev into main [skip ci]"
           git push origin main
+
+      - name: Notify Discord on completion
+        if: always()
+        run: |
+          STATUS="${{ job.status }}"
+          if [ "$STATUS" = "success" ]; then
+            MSG="✅ Dev has been successfully synced to main!"
+          else
+            MSG="❌ Sync from dev to main failed. Check the Actions logs."
+          fi
+
+          curl -H "Content-Type: application/json" \
+            -d "{\"content\": \"$MSG\"}" \
+            ${{ secrets.DISCORD_WEBHOOK_URL }}
