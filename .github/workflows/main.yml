@@ -5,19 +5,21 @@ on:
     branches:
       - dev
   pull_request:
+    types:
+      - closed
     branches:
       - dev
-      types:
-      - closed
 
 jobs:
   sync-to-main:
     runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event.pull_request.merged == true
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0         # fetch full history, not just latest commit
+          fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Configure Git
